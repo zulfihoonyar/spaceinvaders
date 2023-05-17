@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Space Invaders By Zulfiqar</title>
+    <style>
+        /* CSS styles for the game */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 480px;
+            height: 480px;
+            margin: 0 auto;
+            border: 2px solid #fff;
+        }
+        
+        .player {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            background-color: #0f0;
+        }
+        
+        .bullet {
+            position: absolute;
+            width: 2px;
+            height: 8px;
+            background-color: #f00;
+        }
+        
+        .enemy {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #f00;
+        }
+        
+        .score {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .game-over {
+            font-size: 24px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Space Invaders By Zulfiqar</h1>
+    <div id="game-container">
+        <div class="player"></div>
+        <div class="bullet"></div>
+        <div class="enemy"></div>
+    </div>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="game-over" id="game-over" style="display: none;">Game Over! <button onclick="restartGame()">Restart</button></div>
+
+    <script>
+        // JavaScript code for the game
+        
+        // Variables
+        const player = document.querySelector('.player');
+        const bullet = document.querySelector('.bullet');
+        const enemy = document.querySelector('.enemy');
+        const gameContainer = document.getElementById('game-container');
+        const scoreElement = document.getElementById('score');
+        const gameOverElement = document.getElementById('game-over');
+        
+        let playerX = 220;
+        let bulletY = 0;
+        let enemyX = 0;
+        let enemyY = 0;
+        let isBulletFired = false;
+        let score = 0;
+        let isGameRunning = true;
+        
+        // Functions
+        function movePlayer(direction) {
+            if (direction === 'left' && playerX > 0) {
+                playerX -= 10;
+            } else if (direction === 'right' && playerX < 440) {
+                playerX += 10;
+            }
+        
+            player.style.left = `${playerX}px`;
+        }
+        
+        function fireBullet() {
+            if (!isBulletFired) {
+                bulletY = 460;
+                bullet.style.left = `${playerX + 19}px`;
+                bullet.style.top = `${bulletY}px`;
+                bullet.style.display = 'block';
+                isBulletFired = true;
+            }
+        }
+        
+        function moveBullet() {
+            if (bulletY > 0) {
+                bulletY -= 10;
+                bullet.style.top = `${bulletY}px`;
+            } else {
+                bullet.style.display = 'none';
+                isBulletFired = false;
+            }
+        }
+        
+        function moveEnemy() {
+            if (isGameRunning) {
+                enemyX += 5;
+        
+                if (enemyX > 440) {
+                    enemyX = 0;
+                    enemyY += 20;
+                }
+        
+                if (enemyY > 440) {
+                    endGame();
+                }
+        
+                enemy.style.left = `${enemyX}px`;
+                enemy.style.top = `${enemyY}px`;
+            }
+        }
+        
+        function checkCollision() {
+            const bulletRect = bullet.getBoundingClientRect();
+            const enemyRect = enemy.getBoundingClientRect();
+        
+            if (bulletRect.top <= enemyRect.bottom && bulletRect.right >= enemyRect.left && bulletRect.left <= enemyRect.right) {
+                score++;
+                scoreElement.textContent = score;
+                resetBullet();
+                resetEnemy();
+            }
+        }
+        
+        function endGame() {
+            isGameRunning = false;
+            gameOverElement.style.display = 'block';
+        }
+        
+        function restartGame() {
+            location.reload();
+        }
+        
+        // Event listeners
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                movePlayer('left');
+            } else if (event.key === 'ArrowRight') {
+                movePlayer('right');
+            } else if (event.key === ' ') {
+                fireBullet();
+            }
+        });
+        
+        // Game loop
+        setInterval(function() {
+            moveBullet();
+            moveEnemy();
+            checkCollision();
+        }, 30);
+    </script>
+</body>
+</html>
